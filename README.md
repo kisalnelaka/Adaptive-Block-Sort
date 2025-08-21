@@ -33,9 +33,9 @@ The algorithm is implemented in Python and requires no external dependencies bey
    ```
 2. Navigate to the project directory:
    ```bash
-   cd optimized-adaptive-block-sort
+   cd Adaptive-Block-Sort
    ```
-3. Use the `optimized_adaptive_block_sort.py` file directly in your Python project.
+3. Use the `oabs.py` file directly in your Python project.
 
 ## Usage
 The algorithm is implemented as a single function that sorts an input list in-place.
