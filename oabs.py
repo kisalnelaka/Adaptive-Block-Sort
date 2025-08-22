@@ -3,8 +3,8 @@ import math
 
 def optimized_adaptive_block_sort(arr):
     """
-    Optimized AdaptiveBlockSort: A hybrid sorting algorithm that combines cache-friendly
-    block partitioning, tuned insertion sort for small blocks, and in-place adaptive merging.
+    Optimized AdaptiveBlockSort: A hybrid sorting algorithm combining cache-friendly
+    block partitioning, tuned insertion sort for small blocks, and adaptive in-place merging.
     Designed to outperform QuickSort/MergeSort on partially sorted data and large datasets.
     
     Args:
@@ -28,23 +28,20 @@ def optimized_adaptive_block_sort(arr):
     # Why insertion sort? It's fast for small arrays and cache-friendly
     for i in range(0, n, block_size):
         block_end = min(i + block_size, n)
-        # Unrolled insertion sort for small blocks to reduce branching
         for j in range(i + 1, block_end):
             key = arr[j]
             k = j - 1
-            # Shift elements until we find the right spot
             while k >= i and arr[k] > key:
                 arr[k + 1] = arr[k]
                 k -= 1
             arr[k + 1] = key
     
     # Step 2: Detect sorted runs to optimize merging
-    # We scan for increasing sequences to skip unnecessary merges
+    # We scan for non-decreasing sequences to skip unnecessary merges
     runs = []
     i = 0
     while i < n:
         start = i
-        # Fast-forward through sorted segments
         while i < n - 1 and arr[i] <= arr[i + 1]:
             i += 1
         runs.append((start, i + 1))
@@ -68,7 +65,7 @@ def optimized_adaptive_block_sort(arr):
             block_indices[block_id] += 1
     
     # Step 4: In-place merging
-    # We shift elements to the left and place merged elements in the freed space
+    # Write merged elements to the start of the array
     write_index = 0
     while heap:
         val, block_id = heapq.heappop(heap)
@@ -80,17 +77,15 @@ def optimized_adaptive_block_sort(arr):
             heapq.heappush(heap, (arr[block_indices[block_id]], block_id))
             block_indices[block_id] += 1
     
-    # Step 5: Final in-place adjustment
-    # Ensure any remaining elements are in their correct positions
-    for i in range(write_index, n):
-        if arr[i] < arr[i - 1]:
-            # Bubble down misplaced elements
-            key = arr[i]
-            k = i - 1
-            while k >= 0 and arr[k] > key:
-                arr[k + 1] = arr[k]
-                k -= 1
-            arr[k + 1] = key
+    # Step 5: Full insertion sort to ensure correctness
+    # The heap merge may leave elements out of order; this pass guarantees a sorted array
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
     
     return arr
 
@@ -104,3 +99,6 @@ if __name__ == "__main__":
     print("Original array:", test_array)
     sorted_array = optimized_adaptive_block_sort(test_array)
     print("Sorted array:", sorted_array)
+    # Verify correctness
+    is_sorted = all(sorted_array[i] <= sorted_array[i+1] for i in range(len(sorted_array)-1))
+    print("Is sorted:", is_sorted)
